@@ -1,15 +1,25 @@
-FROM ubuntu:16.04
+FROM debian:bullseye-slim
+
+ARG ARCH=aarch64-linux-gnu
+ARG VERSION=24.0.1
 
 RUN apt-get update
 
 RUN apt-get -y install curl
 
-RUN curl -OL https://bitcoin.org/bin/bitcoin-core-0.16.0/bitcoin-0.16.0-x86_64-linux-gnu.tar.gz
+RUN curl -SL -o bitcoin.tar.gz https://bitcoincore.org/bin/bitcoin-core-$VERSION/bitcoin-$VERSION-$ARCH.tar.gz
+RUN tar -xvf ./bitcoin.tar.gz
 
-RUN tar zxvf bitcoin-0.16.0-x86_64-linux-gnu.tar.gz
+RUN rm /bitcoin-$VERSION/bin/bitcoin-qt
 
-RUN ln -s /bitcoin-0.16.0/bin/bitcoin-cli /bitcoin-cli
+RUN ln -s /bitcoin-$VERSION/bin/bitcoin-cli /bin/bitcoin-cli
+RUN ln -s /bitcoin-$VERSION/bin/bitcoind /bin/bitcoind
+RUN chmod +x /bitcoin-$VERSION/bin/bitcoin-cli
+RUN chmod +x /bitcoin-$VERSION/bin/bitcoind
 
+ENV PATH="/bin:${PATH}"
+
+RUN mkdir /root/.bitcoin
 COPY bitcoin.conf /root/.bitcoin/bitcoin.conf
 
 # rpc
@@ -17,4 +27,7 @@ EXPOSE 18444/tcp
 # p2p
 EXPOSE 18443/tcp
 
-ENTRYPOINT ["/bitcoin-0.16.0/bin/bitcoind", "-regtest",  "-printtoconsole"]
+RUN bitcoind -version | grep "Bitcoin Core version v${BITCOIN_VERSION}"
+
+# ENTRYPOINT ["bitcoind", "-regtest",  "-printtoconsole"]
+CMD ["/bin/bash"]
