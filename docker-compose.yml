@@ -2,7 +2,6 @@ version: '3'
 services:
   miner:
     tty: true
-    stdin_open: true
     build: .
     ports:
       - '18400:18443'
@@ -31,3 +30,10 @@ services:
       - '18444'
     command:
       ['bitcoind', '-regtest', '-printtoconsole', '-addnode=node1:18444', '-addnode=miner:18444']
+  playground:
+    tty: true
+    build: playground/
+    volumes:
+      - ./playground/volume:/app
+    ports:
+      - '3001'

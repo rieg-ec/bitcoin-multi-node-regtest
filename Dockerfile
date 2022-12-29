@@ -5,7 +5,7 @@ ARG VERSION=24.0.1
 
 RUN apt-get update
 
-RUN apt-get -y install curl
+RUN apt-get -y install curl vim tmux
 
 RUN curl -SL -o bitcoin.tar.gz https://bitcoincore.org/bin/bitcoin-core-$VERSION/bitcoin-$VERSION-$ARCH.tar.gz
 RUN tar -xvf ./bitcoin.tar.gz
@@ -21,6 +21,10 @@ ENV PATH="/bin:${PATH}"
 
 RUN mkdir /root/.bitcoin
 COPY bitcoin.conf /root/.bitcoin/bitcoin.conf
+
+RUN mkdir /root/bin
+ADD bin/ /root
+RUN chmod +x /root/*
 
 # rpc
 EXPOSE 18444/tcp
